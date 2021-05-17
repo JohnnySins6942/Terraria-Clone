@@ -5,34 +5,27 @@ using UnityEngine.Events;
 
 public class Movement : MonoBehaviour
 {
-	  public float speed;
-    public float jump;
-    public GameObject rayOrigin;
-    public float rayCheckDistance;
-    Rigidbody2D rb;
- 
-    void Start () {
-        rb = GetComponent <Rigidbody2D> ();
-    }
- 
-    void Update () {
-        float x = Input.GetAxis ("Horizontal");
-        if (Input.GetAxis ("Jump") > 0) {
-            RaycastHit2D hit = Physics2D.Raycast(rayOrigin.transform.position, Vector2.down, rayCheckDistance);
-            if (hit.collider != null) {
-                rb.AddForce (Vector2.up * jump, ForceMode2D.Impulse);
-            }
-        }
-        rb.velocity = new Vector3 (x * speed, rb.velocity.y, 0);
-        
-        if(Input.GetKeyDown(KeyCode.D))
-        {
-            this.transform.rotation = Quaternion.Euler(0, 0, 0);
+	public float MovementSpeed = 1;
+	public float JumpForce = 1;
 
-        }
-        else if(Input.GetKeyDown(KeyCode.A))
+	private Rigidbody2D _rigidbody;
+
+    private void Start()
+    {
+        _rigidbody = GetComponent<Rigidbody2D>();
+    }
+    private void Update()
+    {
+        var movement = Input.GetAxis("Horizontal");
+        transform.position += new Vector3(movement, 0, 0) * Time.deltaTime * MovementSpeed;
+
+        if(!Mathf.Approximately(0, movement))
         {
-            this.transform.rotation = Quaternion.Euler(0, 180, 0);
+            transform.rotation = movement < 0 ? Quaternion.Euler(0, 180, 0) : Quaternion.identity;
+        }
+        if(Input.GetButtonDown("Jump") && Mathf.Abs(_rigidbody.velocity.y) < 0.01f)
+        {
+            _rigidbody.AddForce(new Vector2(0, JumpForce), ForceMode2D.Impulse);
         }
     }
 }
